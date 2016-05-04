@@ -25,8 +25,6 @@
     [self requestInfo];
     
     [self callWCF];
-    
-    self.element = [NSMutableString new];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -186,15 +184,13 @@
     [NSString stringWithFormat:
      @"<soap:Envelope xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns:xsd=\"http://www.w3.org/2001/XMLSchema\" xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\">\n"
      "<soap:Body>\n"
-     "<ValidateUser xmlns=\"http://tempuri.org/\">\n"
-     "<LoginAccount>s2</LoginAccount>\n"
-     "<Password>1</Password>\n"
-     "<SimCardNum>9a2155bd-b76a-421f-a5fd-3b650685ba6d</SimCardNum>\n"
-     "<MobileID>9a2155bd-b76a-421f-a5fd-3b650685ba6d</MobileID>\n"
-     "<PhoneModel>iphone 4s</PhoneModel>\n"
-     "<PhoneSystemVersion>7.1.2</PhoneSystemVersion>\n"
-     "<appVersion>V2.1.1</appVersion>\n"
-     "</ValidateUser>\n"
+     "<SubmitEmployeePunchData xmlns=\"http://tempuri.org/\">\n"
+     "<sessionId>6ecaa142-3801-40e0-8fdf-e8d2d7ebf91d</sessionId>\n"
+     "<major>1</major>\n"
+     "<longitude>1.0</longitude>\n"
+     "<latitude>1.0</latitude>\n"
+     "<description></description>\n"
+     "</SubmitEmployeePunchData>\n"
      "</soap:Body>\n"
      "</soap:Envelope>\n"
      ];
@@ -219,7 +215,7 @@
     NSMutableURLRequest *theRequest = [NSMutableURLRequest requestWithURL:url];
     NSString *msgLength = [NSString stringWithFormat:@"%ld", [soapMessage length]];
     [theRequest addValue:@"text/xml; charset=utf-8" forHTTPHeaderField:@"Content-Type"];
-    [theRequest addValue:@"http://tempuri.org/IAppService/ValidateUser" forHTTPHeaderField:@"SOAPAction"];
+    [theRequest addValue:@"http://tempuri.org/IAppService/SubmitEmployeePunchData" forHTTPHeaderField:@"SOAPAction"];
     [theRequest addValue:msgLength forHTTPHeaderField:@"Content-Length"];
     [theRequest setHTTPMethod:@"POST"];
     [theRequest setHTTPBody:[soapMessage dataUsingEncoding:NSUTF8StringEncoding]];
@@ -236,6 +232,8 @@
             NSString *theXML = [[NSString alloc] initWithBytes:[data bytes] length:[data length] encoding:NSUTF8StringEncoding];
             
             NSLog(@"%@", theXML);
+            
+            self.element = [NSMutableString new];
             
             NSXMLParser *parser = [[NSXMLParser alloc] initWithData:data];
             parser.delegate = self;
@@ -319,13 +317,8 @@
 - (void)parser:(NSXMLParser *)parser didEndElement:(NSString *)elementName namespaceURI:(NSString *)namespaceURI qualifiedName:(NSString *)qName {
     NSString *string = self.element;
 
-    if ([elementName isEqualToString:@"ValidateUserResult"]) {
-//        NSLog(@"返回的结果：%@", string);
-        NSData *data = [string dataUsingEncoding:NSUTF8StringEncoding];
-        NSDictionary *dictionary = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
-        
-        NSLog(@"我的结果：%@", dictionary);
-        NSLog(@"用户名：%@", dictionary[@"UserChineseName"]);
+    if ([elementName isEqualToString:@"SubmitEmployeePunchDataResult"]) {
+        NSLog(@"返回的结果：%@", string);
     }
     
     
